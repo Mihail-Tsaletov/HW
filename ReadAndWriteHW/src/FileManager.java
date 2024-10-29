@@ -1,8 +1,6 @@
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Date;
-import java.util.List;
 
 /**
  * На вход программы поступает имя файла, директория и текст на сохранение.
@@ -20,26 +18,30 @@ public class FileManager {
             if (path != null && text != null) {
                 File file = new File(path, fileName);
                 File fileWithPass = new File(path);
-                if (fileWithPass.isFile()) {
-                    OutputStreamWriter streamWriter = new OutputStreamWriter(new FileOutputStream(fileWithPass));
-                    streamWriter.write(text);
-                    streamWriter.close();
-                    return new String("Время записи: " + new Date().toString() + "\nРазмер файла: " + fileWithPass.length());
-                } else{
+                if (!fileWithPass.isDirectory()) {
+                    return getString(path, text, fileWithPass);
+                } else {
                     file.createNewFile();
-                    OutputStreamWriter streamWriter = new OutputStreamWriter(new FileOutputStream(file));
-                    streamWriter.write(text);
-                    streamWriter.close();
-                    return new String("Время записи: " + new Date().toString() + "\nРазмер файла: " + file.length());
+                    return getString(path, text, file);
                 }
             }
         } catch (IOException e) {
-            System.out.println("Недоступные данные пути " + path);
-            return null;
+            throw new ErrorPathFile("По данному пути не удалось сохранить файл: " + path);
         }
-
+        System.out.println("_________________________\nСохранить не удалось\nПуть: " + path + "\nТекст: " + text + "\nИмя файла: " + fileName + "\n_________________________");
         return null;
     }
+
+    private static String getString(String path, String text, File file) {
+        try (OutputStreamWriter streamWriter = new OutputStreamWriter(new FileOutputStream(file))) {
+            streamWriter.write(text);
+            streamWriter.close();
+            return new String("Время записи: " + new Date().toString() + "\nРазмер файла: " + file.length());
+        } catch (Exception e) {
+            throw new ErrorPathFile(path);
+        }
+    }
+
     public static boolean findFile(String fileName, String directory) {
         if (directory != null && fileName != null) {
             File files = new File(directory);
