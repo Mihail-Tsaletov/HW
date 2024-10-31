@@ -35,7 +35,6 @@ public class FileManager {
     private static String getString(String path, String text, File file) {
         try (OutputStreamWriter streamWriter = new OutputStreamWriter(new FileOutputStream(file))) {
             streamWriter.write(text);
-            streamWriter.close();
             return new String("Время записи: " + new Date().toString() + "\nРазмер файла: " + file.length());
         } catch (Exception e) {
             throw new ErrorPathFile(path);
